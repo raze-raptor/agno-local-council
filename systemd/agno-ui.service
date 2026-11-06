@@ -1,0 +1,33 @@
+[Unit]
+Description=Council UI gateway (LAN-facing: login, static frontend, whitelisted proxy to the private council API)
+After=network-online.target agno-council.service
+Wants=agno-council.service
+[Service]
+User=agno-ui
+Group=agno-ui
+Environment=UI_BIND=SERVER1_LAN_IP
+Environment=UI_PORT=8975
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/uigateway.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agno-ui
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+UMask=0077
+MemoryMax=200M
+CPUQuota=100%
+TasksMax=256
+# no internet, no other LAN hosts as destinations: only the private council API and replies to LAN clients
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1/32 192.168.0.0/24
+[Install]
+WantedBy=multi-user.target

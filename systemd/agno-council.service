@@ -1,0 +1,34 @@
+[Unit]
+Description=Agno council (orchestrator + specialists); inference on the GPU PC via the council-gpu-tunnel
+After=network-online.target council-gpu-tunnel.service
+Wants=council-gpu-tunnel.service
+
+[Service]
+User=agno
+Group=agno
+EnvironmentFile=/etc/agno/agno.env
+WorkingDirectory=/var/lib/agno
+ExecStart=/opt/agno/venv/bin/python /opt/agno/app/council.py
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agno -/run/agno-pcstate/control
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+MemoryMax=1500M
+CPUQuota=200%
+TasksMax=256
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1/32 SERVER1_LAN_IP/32
+
+[Install]
+WantedBy=multi-user.target

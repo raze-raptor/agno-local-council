@@ -1,0 +1,33 @@
+[Unit]
+Description=Agno ops broker: read-only diagnostic checks on server1 (local) and server2 (forced-command SSH key); check IDs only, no shell
+After=network-online.target docker.service
+[Service]
+User=agno-ops
+Group=agno
+SupplementaryGroups=docker systemd-journal adm
+RuntimeDirectory=agno-ops
+RuntimeDirectoryMode=0750
+UMask=0007
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/ops/ops_broker.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agno-ops
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_NETLINK
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+MemoryMax=300M
+CPUQuota=100%
+TasksMax=128
+# the only network destination: the server2's sshd
+IPAddressDeny=any
+IPAddressAllow=SERVER2_LAN_IP/32
+[Install]
+WantedBy=multi-user.target

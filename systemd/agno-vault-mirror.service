@@ -1,0 +1,7 @@
+[Unit]
+Description=Read-only markdown mirror of the Obsidian vault for the Agno council
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/agno/mirror-vault.sh
+Nice=10
+IOSchedulingClass=idle

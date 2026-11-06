@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "state_interval_s": 15,
+  "game_check_interval_s": 10,
+  "ram_unsafe_available_mb": 400,
+  "commit_unsafe_pct": 93,
+  "vram_total_mib": 8176,
+  "load_min_available_mb": 3500,
+  "lms_path": "C:\\Users\\YOU\\.lmstudio\\bin\\lms.exe",
+  "model": {
+    "key": "mellum2.1-12b-a2.5b-thinking",
+    "context": 16384,
+    "parallel": 1
+  },
+  "power_plan": "keep",
+  "priority": {
+    "raise": [
+      "LM Studio",
+      "llama-server",
+      "lms"
+    ],
+    "raise_to": "AboveNormal",
+    "lower": [
+      "OneDrive",
+      "syncthing",
+      "Dropbox",
+      "GoogleDriveFS"
+    ],
+    "lower_to": "BelowNormal"
+  },
+  "gaming": {
+    "enabled": true,
+    "unload_model": true,
+    "unload_wait_idle_max_s": 600,
+    "path_prefixes": [
+      "C:\\Program Files (x86)\\Steam\\steamapps\\common\\",
+      "D:\\SteamLibrary\\steamapps\\common\\",
+      "C:\\Games\\",
+      "C:\\Program Files\\Epic Games\\",
+      "C:\\Riot Games\\",
+      "C:\\XboxGames\\"
+    ],
+    "path_excludes": [
+      "\\Steamworks Shared\\",
+      "\\Steam Controller Configs\\",
+      "\\_CommonRedist\\",
+      "\\Redist\\",
+      "\\Riot Client\\",
+      "\\Launcher\\",
+      "\\EasyAntiCheat",
+      "\\CrashReport"
+    ],
+    "exe_names": [
+      "RobloxPlayerBeta.exe",
+      "VALORANT-Win64-Shipping.exe",
+      "FortniteClient-Win64-Shipping.exe",
+      "cs2.exe",
+      "csgo.exe",
+      "Minecraft.Windows.exe"
+    ],
+    "never_games": [
+      "RobloxStudioBeta.exe",
+      "Lunar Client.exe",
+      "Modrinth App.exe",
+      "theseus_gui.exe",
+      "MinecraftLauncher.exe",
+      "Minecraft.exe",
+      "Medal.exe",
+      "steam.exe",
+      "steamwebhelper.exe",
+      "EpicGamesLauncher.exe",
+      "RiotClientServices.exe",
+      "RiotClientUx.exe",
+      "Discord.exe"
+    ],
+    "minecraft_java": {
+      "process_names": [
+        "javaw.exe",
+        "java.exe"
+      ],
+      "cmdline_regex": "--gameDir|--assetIndex|net\\.minecraft|net\\.fabricmc|cpw\\.mods|com\\.moonsworth|LaunchWrapper|minecraftforge|org\\.quiltmc"
+    }
+  },
+  "night": {
+    "start": "03:00",
+    "end": "09:00",
+    "preload_minutes": 5,
+    "auto_load": true,
+    "auto_off_after_window": true,
+    "max_load_attempts": 3,
+    "retry_minutes": 10
+  },
+  "off_unloads_model": true,
+  "on_loads_model": true
+}

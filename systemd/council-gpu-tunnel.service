@@ -1,0 +1,12 @@
+[Unit]
+Description=SSH tunnel to LM Studio on the GPU box (loopback only)
+After=network-online.target
+
+[Service]
+User=YOUR_USER
+ExecStart=/usr/bin/ssh -N -o ExitOnForwardFailure=yes -o BatchMode=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -L 127.0.0.1:11235:127.0.0.1:1234 YOUR_USER@GPU_PC_HOST
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

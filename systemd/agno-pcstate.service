@@ -1,0 +1,20 @@
+[Unit]
+Description=Copy AI Mode state from the Windows PC (fixed ssh command, validated JSON) for the Agno council
+After=network-online.target
+[Service]
+User=YOUR_USER
+Group=agno
+RuntimeDirectory=agno-pcstate
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+UMask=0027
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/pcstate-poller.py
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+MemoryMax=100M
+[Install]
+WantedBy=multi-user.target

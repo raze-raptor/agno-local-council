@@ -1,0 +1,7 @@
+[Unit]
+Description=Collect health facts every 10 minutes
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=10min
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Council</title>
+<style>
+:root{--bg:#fff;--fg:#1b1f23;--mut:#6a737d;--card:#f6f8fa;--bd:#d0d7de;--ok:#1a7f37;--warn:#b35900;--bad:#cf222e}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#8b949e;--card:#161b22;--bd:#30363d;--ok:#3fb950;--warn:#d29922;--bad:#f85149}}
+body{margin:0;font:15px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--fg)}main{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0 0 12px}h2{font-size:14px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin:20px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.k{color:var(--mut);font-size:12px}.v{font-weight:600}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--bd);font-size:13px}
+textarea{width:100%;box-sizing:border-box;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit}
+button{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+#ans{white-space:pre-wrap;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:8px;min-height:1em}
+</style></head><body><main>
+<h1>Local AI council</h1>
+<div class="grid" id="cards"></div>
+<h2>Why unattended work is / isn't allowed right now</h2><div id="why" class="card"></div>
+<h2>Jobs</h2><div class="card"><table id="jobs"><tr><td>loading…</td></tr></table></div>
+<h2>Ask the council</h2>
+<textarea id="msg" rows="3" placeholder="Ask something (interactive requests work any time the model is loaded)"></textarea>
+<p><button id="go">Send</button> <span class="k" id="busy"></span></p><div id="ans"></div>
+<p class="k">Loopback only. AI Mode is switched on the PC (tray icon), not here, by design.</p>
+</main><script>
+const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const card=(k,v,c='')=>`<div class="card"><div class="k">${k}</div><div class="v ${c}">${esc(v)}</div></div>`;
+async function refresh(){try{
+ const s=await (await fetch('/status')).json();const pc=s.pc||{};
+ $('cards').innerHTML=card('Model',s.inference.ok?('loaded @'+s.inference.context):s.inference.reason,s.inference.ok?'ok':'bad')
+  +card('AI Mode (PC)',pc.reachable===false?'PC unreachable':(pc.ai_mode||'unknown'),pc.ai_mode==='ON'?'ok':'warn')
+  +card('Gaming',pc.gaming?('YES: '+pc.game):'no',pc.gaming?'warn':'ok')
+  +card('London time',s.window.now_london+(s.window.in_window?' (in window)':' (outside 03-09)'))
+  +card('PC RAM free',pc.ram_available_mb!=null?pc.ram_available_mb+' MB':'?',(pc.ram_available_mb||9999)<800?'warn':'')
+  +card('Unattended work',s.unattended_work_allowed?'allowed':'blocked',s.unattended_work_allowed?'ok':'warn');
+ $('why').textContent=s.blocked_because.length?s.blocked_because.join(' · '):'all conditions met';
+ const j=(await (await fetch('/jobs')).json()).jobs;
+ $('jobs').innerHTML='<tr><th>#</th><th>kind</th><th>status</th><th>note</th></tr>'+(j.length?j.map(x=>`<tr><td>${x.id}</td><td>${esc(x.kind)}</td><td>${esc(x.status)}</td><td>${esc(x.note||'')}</td></tr>`).join(''):'<tr><td colspan=4>no jobs yet</td></tr>');
+}catch(e){$('why').textContent='service not reachable: '+e}}
+$('go').onclick=async()=>{const m=$('msg').value.trim();if(!m)return;$('busy').textContent='thinking…';$('ans').textContent='';
+ try{const r=await fetch('/chat',{method:'POST',body:JSON.stringify({message:m,session_id:'ui'})});const d=await r.json();$('ans').textContent=d.answer||('['+r.status+'] '+(d.reason||d.detail||d.error))}catch(e){$('ans').textContent=String(e)}$('busy').textContent=''};
+refresh();setInterval(refresh,15000);
+</script></body></html>

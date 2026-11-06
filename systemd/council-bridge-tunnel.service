@@ -1,0 +1,11 @@
+# Installed at activation 2026-11-05: forwards server1 127.0.0.1:19340 to the companion on the PC's loopback over the existing SSH access (no new port).
+[Unit]
+Description=Council bridge tunnel to the PC companion
+After=network-online.target
+[Service]
+User=agno
+ExecStart=/usr/bin/ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/var/lib/agno/bridge/known_hosts -i /var/lib/agno/bridge/ssh_key -L 127.0.0.1:19340:127.0.0.1:9340 YOUR_USER@GPU_PC_HOST
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target

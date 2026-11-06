@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""council CLI: council status | jobs | chat "text" [--agent engineer|critic|sysadmin|researcher] | job "prompt" | report <job-id>"""
+import json, sys, urllib.request
+B = "http://127.0.0.1:7777"
+def call(path, body=None):
+    r = urllib.request.Request(B + path, json.dumps(body).encode() if body is not None else None, {"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(r, timeout=900) as x: return json.load(x)
+    except urllib.error.HTTPError as e: return json.load(e)
+a = sys.argv[1:] or ["status"]
+if a[0] == "status":
+    s = call("/status"); pc = s.get("pc") or {}
+    print(f"model: {'loaded @' + str(s['inference'].get('context')) if s['inference']['ok'] else 'NOT AVAILABLE - ' + s['inference']['reason']}")
+    print(f"PC: {'unreachable' if pc.get('reachable') is False else 'AI Mode ' + str(pc.get('ai_mode')) + (' | GAMING ' + str(pc.get('game')) if pc.get('gaming') else '')}  RAM free {pc.get('ram_available_mb')} MB")
+    print(f"London: {s['window']['now_london']}  in window: {s['window']['in_window']}  next start: {s['window']['next_start']}")
+    print("unattended work:", "ALLOWED" if s["unattended_work_allowed"] else "blocked - " + "; ".join(s["blocked_because"]))
+    print("jobs:", s["jobs"], "| running:", s["running_job"])
+elif a[0] == "jobs":
+    for j in call("/jobs")["jobs"]: print(f"#{j['id']:<3} {j['kind']:<15} {j['status']:<10} {j.get('note') or ''}")
+elif a[0] == "chat":
+    ag = a[a.index("--agent") + 1] if "--agent" in a else "orchestrator"
+    d = call("/chat", {"message": a[1], "agent": ag}); print(d.get("answer") or json.dumps(d, indent=1))
+elif a[0] == "job":
+    print(call("/jobs", {"prompt": a[1], "title": a[1][:60]}))
+elif a[0] == "proposals":
+    for p in call("/proposals")["proposals"]: print(f"#{p['id']:<3} [{p['status']}] {p['host']}: {p['what']}\n      command: {p['command']}\n      why: {p['why']}")
+elif a[0] in ("approve", "reject"):
+    print(call(f"/proposals/{a[1]}/{a[0]}", {}))
+elif a[0] == "report":
+    j = call("/jobs/" + a[1]); print(j.get("report") or json.dumps(j, indent=1))

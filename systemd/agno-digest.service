@@ -1,0 +1,5 @@
+[Unit]
+Description=Email the owner the council's new overnight reports (nothing sent if nothing new)
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/agno-digest.py

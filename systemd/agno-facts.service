@@ -1,0 +1,7 @@
+[Unit]
+Description=Deterministic health facts for the Agno council (no model)
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/collect-facts.py
+Nice=10
+IOSchedulingClass=idle

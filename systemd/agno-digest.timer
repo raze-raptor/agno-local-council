@@ -1,0 +1,7 @@
+[Unit]
+Description=Morning council digest, 09:10 Europe/London (after the 03:00-09:00 window closes)
+[Timer]
+OnCalendar=*-*-* 09:10:00 Europe/London
+Persistent=false
+[Install]
+WantedBy=timers.target

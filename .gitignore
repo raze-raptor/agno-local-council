@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+*.env
+!config/*.env.example
+*.db
+*.jsonl
+ui-auth.json
+*.crt
+*.key
+*.pem
+/bridge/
+setup-answers.md

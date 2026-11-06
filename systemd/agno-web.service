@@ -1,0 +1,35 @@
+[Unit]
+Description=Agno web helper: the only internet-facing part of the council (search via SearXNG, safe single-page fetch)
+After=network-online.target docker.service
+[Service]
+User=agno-web
+Group=agno
+RuntimeDirectory=agno-web
+RuntimeDirectoryMode=0750
+StateDirectory=agno-web
+StateDirectoryMode=0700
+UMask=0007
+Environment=AGNO_WEB_AUDIT=/var/lib/agno-web/audit.jsonl
+Environment=AGNO_SEARX=http://172.17.0.3:8080
+ExecStart=/usr/bin/python3 /usr/local/lib/agno/webhelper.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_UNIX
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+MemoryMax=300M
+CPUQuota=100%
+TasksMax=128
+# cgroup-level egress: public internet yes; LAN, loopback, link-local, CGNAT, multicast, other containers NO. Only the SearXNG container is allowed.
+IPAddressDeny=0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.168.0.0/16 224.0.0.0/4 240.0.0.0/4 ::1/128 fc00::/7 fe80::/10
+IPAddressAllow=172.17.0.3/32
+[Install]
+WantedBy=multi-user.target

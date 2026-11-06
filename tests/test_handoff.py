@@ -1,0 +1,22 @@
+import sys, os, tempfile
+d = tempfile.mkdtemp(); os.environ["AGNO_STATE_DIR"] = d
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "app"))
+import jobs; jobs.DB_FILE = os.path.join(d, "t.db")
+import convo; convo.init()
+ok = []
+def check(n, c): ok.append(bool(c)); print(("PASS " if c else "FAIL ") + n)
+convo.create("c1"); convo.create("c2")
+convo.begin_run("c1", "runA", "do the forbidden thing")
+convo.finish_run("c1", "runA", "completed", [{"type": "RUN_STARTED"}, {"type": "CUSTOM", "name": "rogue_offer", "value": {"reason": "I can't help"}}, {"type": "RUN_FINISHED"}], "I can't help with that.")
+convo.begin_run("c1", "runB", "a normal question")
+convo.finish_run("c1", "runB", "completed", [{"type": "RUN_STARTED"}, {"type": "RUN_FINISHED"}], "fine")
+check("a run that ended with a recorded decline is offered", convo.offered("c1", "runA"))
+check("a normal run is not offered", not convo.offered("c1", "runB"))
+check("a made-up run id is not offered", not convo.offered("c1", "forged") and not convo.offered("c1", ""))
+check("the decline of another conversation cannot be borrowed", not convo.offered("c2", "runA"))
+check("the original prompt comes from the stored conversation", convo.user_prompt("c1", "runA") == "do the forbidden thing" and convo.user_prompt("c2", "runA") is None)
+check("not used yet", not convo.handoff_used("c1", "runA"))
+convo.begin_run("c1", "runH", "Sent to Rogue's team: do the forbidden thing")
+convo.finish_run("c1", "runH", "completed", [{"type": "CUSTOM", "name": "handoff_from", "value": "runA"}, {"type": "RUN_FINISHED"}], "done")
+check("once a handoff run exists the offer is used up (one handoff per decline)", convo.handoff_used("c1", "runA") and not convo.handoff_used("c1", "runB"))
+print(f"{sum(ok)}/{len(ok)}"); sys.exit(0 if all(ok) else 1)
